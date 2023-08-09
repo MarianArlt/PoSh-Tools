@@ -82,13 +82,13 @@ if ($file -ne "") {
                 Start-BitsTransfer -Source $file -Destination (New-Item -Type Directory -Force $destination) -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
             } else {
                 Start-BitsTransfer -Source $file -Destination $destination -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
-            } elseif ($fileExists) {
-                "`n  $destination\$filename already exists. Skipping $ipv4" | Out-Host
-            } elseif (!$test) {
-                "`n  Connection test to $ipv4 failed. Skipping host..." | Out-Host
-            } else {
-                "`n  An unexpected error ocurred. Skipping $ipv4" | Out-Host
             }
+        } elseif ($fileExists) {
+            "`n  $destination\$filename already exists. Skipping $ipv4" | Out-Host
+        } elseif (!$test) {
+            "`n  Connection test to $ipv4 failed. Skipping host..." | Out-Host
+        } else {
+            "`n  An unexpected error ocurred. Skipping $ipv4" | Out-Host
         }
     }
 } else {

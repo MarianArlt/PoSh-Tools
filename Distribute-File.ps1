@@ -45,7 +45,7 @@ if ($fileExtension -eq ".iso") {
 }
 
 # prompt for sub directory
-Read-Host "  Do you want to place the file in a sub directory?`nThe file will currently be placed in C:\$directory on the remote hosts.`nPress [Enter] to copy in-place or type [y] to "
+$subDir = Read-Host "  Do you want to place the file in a sub directory?`nThe file will currently be placed in C:\$directory on the remote hosts.`nPress [Enter] to provide a name or [n] to decline"
 
 if ($file -ne "") {
     $stop = [int]$amountHosts * 10
@@ -54,12 +54,11 @@ if ($file -ne "") {
         $ipv4 = "$net.$i"
         $seat = $i.ToString().PadLeft(3,"0")
 
-        $destination = Join-Path "R$room-PC$seat-$monthSuffix" "C$" $directory
+        $destination = Join-Path "R$room-PC$seat-$monthSuffix" "C$" $directory $subDir
 
         try {
             Test-Connection $ipv4 -Count 1 -ErrorAction Stop
-            "\\$destination" | Out-Host
-            #Copy-Item -Path $file -Destination "\\$destination"
+            Copy-Item -Path $file -Destination "\\$destination"
         } catch {
             "  Could not reach $ipv4" | Out-Host
         }

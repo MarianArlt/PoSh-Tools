@@ -42,6 +42,10 @@ function Open-File([string] $initialDirectory) {
 # file picker function call
 $file = Open-File $env:USERPROFILE
 $filename = ($file.split("\"))[-1]
+if (!$file) {
+    Read-Host "`n  No file chosen. Exiting script"
+    Exit
+}
 
 # choose resource by file extension
 $fileExtension = [System.IO.Path]::GetExtension($file)
@@ -91,7 +95,5 @@ if ($file -ne "") {
             "`n  An unexpected error ocurred. Skipping $ipv4" | Out-Host
         }
     }
-} else {
-    Read-Host "`n  No file chosen. Exiting script"
 }
 Read-Host "`n  Finished script. Press [Enter] to leave"

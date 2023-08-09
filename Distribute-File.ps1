@@ -13,6 +13,7 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+Import-Module BitsTransfer
 [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
 
 # variables
@@ -40,6 +41,7 @@ function Open-File([string] $initialDirectory) {
 }
 # file picker function call
 $file = Open-File $env:USERPROFILE
+$filename = ($file.split("\"))[-1]
 
 # choose resource by file extension
 $fileExtension = [System.IO.Path]::GetExtension($file)
@@ -61,22 +63,35 @@ $sub = Read-Host @"
 
   Provide additional sub directories or hit [Enter]
 "@
+if ($sub) { $directory = Join-Path $directory $sub }
 
+# loop and copy
 if ($file -ne "") {
     $stop = [int]$h * 10
 
     for ($i = 10; $i -le $stop; $i += 10) {
         $ipv4 = "$net.$i"
         $seat = $i.ToString().PadLeft(3,"0")
-        $destination = Join-Path "\\R$r-PC$seat-$s" "C$" $directory $sub
+        $destination = Join-Path "\\R$r-PC$seat-$s\C$" $directory
 
-        try {
-            Test-Connection $ipv4 -Count 1 -ErrorAction Stop
-            Copy-Item -Path $file -Destination $destination
-        } catch {
-            "  Could not reach $ipv4" | Out-Host
+        $test = Test-Connection $ipv4 -Count 1 -AsJob
+        $fileExists = Test-Path -Path "$destination\$filename" -PathType Leaf
+
+        if ($test -And !$fileExists) {
+            if ($sub) {
+                Start-BitsTransfer -Source $file -Destination (New-Item -Type Directory -Force $destination) -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
+            } else {
+                Start-BitsTransfer -Source $file -Destination $destination -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
+            } elseif ($fileExists) {
+                "`n  $destination\$filename already exists. Skipping $ipv4" | Out-Host
+            } elseif (!$test) {
+                "`n  Connection test to $ipv4 failed. Skipping host..." | Out-Host
+            } else {
+                "`n  An unexpected error ocurred. Skipping $ipv4" | Out-Host
+            }
         }
     }
 } else {
-    Read-Host "  No file chosen. Exiting script"
+    Read-Host "`n  No file chosen. Exiting script"
 }
+Read-Host "`n  Finished script. Press [Enter] to leave"

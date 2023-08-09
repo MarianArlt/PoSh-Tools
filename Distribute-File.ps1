@@ -14,12 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Anpassbar:
+# variables
 $net = "172.16.110"
 $room = "110"
 $monthSuffix = "03"
 $amountHosts = "10"
 
+# user GUI file picker function
+"`n`n  Press [Enter] to choose a file for distribution"
 function Open-File([string] $initialDirectory) {
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
     $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -30,14 +32,18 @@ function Open-File([string] $initialDirectory) {
     return $OpenFileDialog.FileName
 }
 
+# file picker function call
 $file = Open-File $env:USERPROFILE
 
 if ($file -ne "") {
     $stop = [int]$amountHosts * 10
+
     for ($i = 10; $i -le $stop; $i += 10) {
         $ipv4 = "$net.$i"
         $seat = $i.ToString().PadLeft(3,"0")
         $fileExtension = [System.IO.Path]::GetExtension($file)
+
+        # choose resource by file extension
         if ($fileExtension -eq ".iso") {
             $directory = "_ISOs"
         } elseif ($fileExtension -eq ".vhd" -or $fileExtension -eq ".vhdx") {
@@ -45,14 +51,15 @@ if ($file -ne "") {
         } else {
             $directory = "_tools"
         }
-        $destination = "\\R$room-PC$seat-$monthSuffix\c$\$directory"
+        $destination = "\\R$room-PC$seat-$monthSuffix\C$\$directory"
+
         try {
             Test-Connection $ipv4 -Count 1 -ErrorAction Stop
             Copy-Item -Path $file -Destination $destination
         } catch {
-            Write-Output "$ipv4 konnte nicht erreicht werden."
+            "  Could not reach $ipv4" | Out-Host
         }
     }
 } else {
-    Write-Output "Keine Datei ausgewaehlt."
+    Read-Host "  No file chosen. Exiting script"
 }

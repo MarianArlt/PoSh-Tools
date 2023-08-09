@@ -17,7 +17,6 @@
 
 # variables
 $room = "110"
-$net = "172.16.$room"
 $suffix = "03"
 $hosts = "10"
 
@@ -26,6 +25,8 @@ if (!($r = Read-Host "  Provide room or press [Enter] to accept '110'")) { $r = 
 if (!($s = Read-Host "  Provide suffix or press [Enter] to accept '03'")) { $s = $suffix }
 if (!($h = Read-Host "  Provide number of remote hosts in total or press [Enter] to accept '10'")) { $h = $hosts }
 "`n  File will be copied to $h hosts of format:`n      R$r-PC###-$s`n  starting with R$r-PC010-$s in increments of 10.`n" | Out-Host
+
+$net = "172.16.$r"
 
 # user GUI file picker function
 Read-Host "  Press [Enter] to choose a file for distribution"
@@ -62,12 +63,12 @@ $sub = Read-Host @"
 "@
 
 if ($file -ne "") {
-    $stop = [int]$amountHosts * 10
+    $stop = [int]$h * 10
 
     for ($i = 10; $i -le $stop; $i += 10) {
         $ipv4 = "$net.$i"
         $seat = $i.ToString().PadLeft(3,"0")
-        $destination = Join-Path "\\R$room-PC$seat-$monthSuffix" "C$" $directory $sub
+        $destination = Join-Path "\\R$r-PC$seat-$s" "C$" $directory $sub
 
         try {
             Test-Connection $ipv4 -Count 1 -ErrorAction Stop

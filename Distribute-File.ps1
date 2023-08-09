@@ -21,7 +21,7 @@ $monthSuffix = "03"
 $amountHosts = "10"
 
 # user GUI file picker function
-"`n`n  Press [Enter] to choose a file for distribution"
+Read-Host "`n`n  Press [Enter] to choose a file for distribution"
 function Open-File([string] $initialDirectory) {
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
     $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -31,9 +31,21 @@ function Open-File([string] $initialDirectory) {
 
     return $OpenFileDialog.FileName
 }
-
 # file picker function call
 $file = Open-File $env:USERPROFILE
+
+# choose resource by file extension
+$fileExtension = [System.IO.Path]::GetExtension($file)
+if ($fileExtension -eq ".iso") {
+    $directory = "_ISOs"
+} elseif ($fileExtension -eq ".vhd" -or $fileExtension -eq ".vhdx") {
+    $directory = "_HDs-Main"
+} else {
+    $directory = "_tools"
+}
+
+# prompt for sub directory
+Read-Host "  Do you want to place the file in a sub directory?`nThe file will currently be placed in C:\$directory on the remote hosts.`nPress [Enter] to copy in-place or type [y] to "
 
 if ($file -ne "") {
     $stop = [int]$amountHosts * 10
@@ -41,21 +53,13 @@ if ($file -ne "") {
     for ($i = 10; $i -le $stop; $i += 10) {
         $ipv4 = "$net.$i"
         $seat = $i.ToString().PadLeft(3,"0")
-        $fileExtension = [System.IO.Path]::GetExtension($file)
 
-        # choose resource by file extension
-        if ($fileExtension -eq ".iso") {
-            $directory = "_ISOs"
-        } elseif ($fileExtension -eq ".vhd" -or $fileExtension -eq ".vhdx") {
-            $directory = "_HDs-Main"
-        } else {
-            $directory = "_tools"
-        }
-        $destination = "\\R$room-PC$seat-$monthSuffix\C$\$directory"
+        $destination = Join-Path "R$room-PC$seat-$monthSuffix" "C$" $directory
 
         try {
             Test-Connection $ipv4 -Count 1 -ErrorAction Stop
-            Copy-Item -Path $file -Destination $destination
+            "\\$destination" | Out-Host
+            #Copy-Item -Path $file -Destination "\\$destination"
         } catch {
             "  Could not reach $ipv4" | Out-Host
         }

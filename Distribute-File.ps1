@@ -13,17 +13,23 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+[System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
 
 # variables
-$net = "172.16.110"
 $room = "110"
-$monthSuffix = "03"
-$amountHosts = "10"
+$net = "172.16.$room"
+$suffix = "03"
+$hosts = "10"
+
+"`n`n  This script copies a single file to multiple remote hosts`n  where the format of the targeted resources is of:`n      R<Room>-PC###-<Suffix>`n" | Out-Host
+if (!($r = Read-Host "  Provide room or press [Enter] to accept '110'")) { $r = $room }
+if (!($s = Read-Host "  Provide suffix or press [Enter] to accept '03'")) { $s = $suffix }
+if (!($h = Read-Host "  Provide number of remote hosts in total or press [Enter] to accept '10'")) { $h = $hosts }
+"`n  File will be copied to $h hosts of format:`n      R$r-PC###-$s`n  starting with R$r-PC010-$s in increments of 10.`n" | Out-Host
 
 # user GUI file picker function
-Read-Host "`n`n  Press [Enter] to choose a file for distribution"
+Read-Host "  Press [Enter] to choose a file for distribution"
 function Open-File([string] $initialDirectory) {
-    [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
     $OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
     $OpenFileDialog.InitialDirectory = $initialDirectory
     $OpenFileDialog.Filter = "All files (*.*)| *.*"
@@ -45,7 +51,15 @@ if ($fileExtension -eq ".iso") {
 }
 
 # prompt for sub directory
-$subDir = Read-Host "  Do you want to place the file in a sub directory?`nThe file will currently be placed in C:\$directory on the remote hosts.`nPress [Enter] to provide a name or [n] to decline"
+$sub = Read-Host @"
+  The following file will be queued for distribution:
+      $file
+
+  Target destination on remote hosts:
+      C:\$directory
+
+  Provide additional sub directories or hit [Enter]
+"@
 
 if ($file -ne "") {
     $stop = [int]$amountHosts * 10
@@ -53,12 +67,11 @@ if ($file -ne "") {
     for ($i = 10; $i -le $stop; $i += 10) {
         $ipv4 = "$net.$i"
         $seat = $i.ToString().PadLeft(3,"0")
-
-        $destination = Join-Path "R$room-PC$seat-$monthSuffix" "C$" $directory $subDir
+        $destination = Join-Path "\\R$room-PC$seat-$monthSuffix" "C$" $directory $sub
 
         try {
             Test-Connection $ipv4 -Count 1 -ErrorAction Stop
-            Copy-Item -Path $file -Destination "\\$destination"
+            Copy-Item -Path $file -Destination $destination
         } catch {
             "  Could not reach $ipv4" | Out-Host
         }

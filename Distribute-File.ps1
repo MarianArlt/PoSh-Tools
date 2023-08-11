@@ -97,6 +97,7 @@ if ($file -ne "") {
             } else {
                 Start-BitsTransfer -Source $file -Destination $destination -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
             }
+            "`n  Successfully copied to $ipv4" | Out-Host
         }
     }
 }

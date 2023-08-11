@@ -69,6 +69,8 @@ $sub = Read-Host @"
 "@
 if ($sub) { $directory = Join-Path $directory $sub }
 
+$force = Read-Host "`n  Do you want to force overwrites?`n  The default behavior will skip hosts where the file was already found to exist in that directory`n  Press [Enter] to accept default or write [y] to force"
+
 # loop over hosts and copy
 if ($file -ne "") {
     $stop = [int]$h * 10
@@ -85,7 +87,7 @@ if ($file -ne "") {
             continue
         } else {
             $fileExists = Test-Path -Path "$destination\$filename" -PathType Leaf
-            if ($fileExists) {
+            if (!$force -And $fileExists) {
                 "`n  $destination\$filename already exists. Skipping $ipv4" | Out-Host
                 continue
             } elseif ($sub) {

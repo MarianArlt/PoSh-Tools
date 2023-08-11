@@ -80,8 +80,10 @@ if ($file -ne "") {
         $seat = $i.ToString().PadLeft(3,"0")
         $destination = Join-Path "\\R$r-PC$seat-$s\C$" $directory
 
-        $test = Test-Connection $ipv4 -Count 1 -Quiet
+        $isLocalhost = Get-NetIPAddress -AddressFamily IPv4 | Where-Object IPAddress -match $ipv4
+        if ($isLocalhost) { continue }
 
+        $test = Test-Connection $ipv4 -Count 1 -Quiet
         if (!$test) {
             "`n  Connection test to $ipv4 failed. Skipping host..." | Out-Host
             continue

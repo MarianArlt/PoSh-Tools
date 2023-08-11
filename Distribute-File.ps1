@@ -69,7 +69,7 @@ $sub = Read-Host @"
 "@
 if ($sub) { $directory = Join-Path $directory $sub }
 
-$force = Read-Host "`n  Do you want to force overwrites?`n  The default behavior will skip hosts where the file`n  was already found to exist in that directory.`n  Press [Enter] to accept default or write [y] to force"
+$force = Read-Host "`n  The default behavior will skip hosts where $filename`n  was already found to exist in C:\$directory\.`n  Press [Enter] to skip duplicates or write [f] to force"
 
 # loop over hosts and copy
 if ($file -ne "") {

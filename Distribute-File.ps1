@@ -69,7 +69,7 @@ $sub = Read-Host @"
 "@
 if ($sub) { $directory = Join-Path $directory $sub }
 
-$force = Read-Host "`n  The default behavior will skip hosts where $filename`n  was already found to exist in C:\$directory\.`n  Press [Enter] to skip duplicates or write [f] to force"
+$force = Read-Host "`n  The default behavior will skip hosts where $filename`n  was already found to exist in C:\$directory\`n  Press [Enter] to skip duplicates or write [f] to force"
 
 # loop over hosts and copy
 if ($file -ne "") {
@@ -100,7 +100,7 @@ if ($file -ne "") {
             } else {
                 Start-BitsTransfer -Source $file -Destination $destination -TransferType Upload -DisplayName "Copying $filename..." -Description "...to $destination\ on $ipv4"
             }
-            "`n  Successfully copied to $ipv4" | Out-Host
+            "`n  Successfully copied $filename to $destination\ $ipv4" | Out-Host
         }
     }
 }

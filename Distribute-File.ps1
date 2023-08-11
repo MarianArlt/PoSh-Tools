@@ -96,9 +96,9 @@ if ($file -ne "") {
                 "`n  $destination\$filename already exists. Skipping $ipv4" | Out-Host
                 continue
             } elseif ($sub) {
-                Start-BitsTransfer -Source $file -Destination (New-Item -Type Directory -Force $destination) -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
+                Start-BitsTransfer -Source $file -Destination (New-Item -Type Directory -Force $destination) -TransferType Upload -DisplayName "Copying $filename..." -Description "...to $destination\ on $ipv4"
             } else {
-                Start-BitsTransfer -Source $file -Destination $destination -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
+                Start-BitsTransfer -Source $file -Destination $destination -TransferType Upload -DisplayName "Copying $filename..." -Description "...to $destination\ on $ipv4"
             }
             "`n  Successfully copied to $ipv4" | Out-Host
         }

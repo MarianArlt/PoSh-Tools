@@ -69,7 +69,7 @@ $sub = Read-Host @"
 "@
 if ($sub) { $directory = Join-Path $directory $sub }
 
-# loop and copy
+# loop over hosts and copy
 if ($file -ne "") {
     $stop = [int]$h * 10
 
@@ -82,10 +82,12 @@ if ($file -ne "") {
 
         if (!$test) {
             "`n  Connection test to $ipv4 failed. Skipping host..." | Out-Host
+            continue
         } else {
             $fileExists = Test-Path -Path "$destination\$filename" -PathType Leaf
             if ($fileExists) {
                 "`n  $destination\$filename already exists. Skipping $ipv4" | Out-Host
+                continue
             } elseif ($sub) {
                 Start-BitsTransfer -Source $file -Destination (New-Item -Type Directory -Force $destination) -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
             } else {

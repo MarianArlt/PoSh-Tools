@@ -79,16 +79,16 @@ if ($file -ne "") {
         $destination = Join-Path "\\R$r-PC$seat-$s\C$" $directory
 
         $test = Test-Connection $ipv4 -Count 1
-        $fileExists = Test-Path -Path "$destination\$filename" -PathType Leaf
 
-        if ($test -And !$fileExists) {
-            if ($sub) {
+        if ($test) {
+            $fileExists = Test-Path -Path "$destination\$filename" -PathType Leaf
+            if ($fileExists) {
+                "`n  $destination\$filename already exists. Skipping $ipv4" | Out-Host
+            } elseif ($sub) {
                 Start-BitsTransfer -Source $file -Destination (New-Item -Type Directory -Force $destination) -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
             } else {
                 Start-BitsTransfer -Source $file -Destination $destination -TransferType Upload -DisplayName "Copying..." -Description "...to $ipv4"
             }
-        } elseif ($fileExists) {
-            "`n  $destination\$filename already exists. Skipping $ipv4" | Out-Host
         } elseif (!$test) {
             "`n  Connection test to $ipv4 failed. Skipping host..." | Out-Host
         } else {

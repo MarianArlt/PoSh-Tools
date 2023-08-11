@@ -81,7 +81,10 @@ if ($file -ne "") {
         $destination = Join-Path "\\R$r-PC$seat-$s\C$" $directory
 
         $isLocalhost = Get-NetIPAddress -AddressFamily IPv4 | Where-Object IPAddress -match $ipv4
-        if ($isLocalhost) { continue }
+        if ($isLocalhost) {
+            "`n  Skipping localhost." | Out-Host
+            continue
+        }
 
         $test = Test-Connection $ipv4 -Count 1 -Quiet
         if (!$test) {

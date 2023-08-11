@@ -40,7 +40,7 @@ function Open-File([string] $initialDirectory) {
     return $OpenFileDialog.FileName
 }
 # file picker function call
-$file = Open-File $env:USERPROFILE
+$file = Open-File $env:SYSTEMDRIVE
 $filename = ($file.split("\"))[-1]
 if (!$file) {
     Read-Host "`n  No file chosen. Exiting script"
